@@ -1,0 +1,218 @@
+local potions  =  {}
+for i, v in pairs(game:GetService("Players").LocalPlayer.PlayerGui.ScreenGui.PotionInventory.Items:GetChildren()) do
+    if v:IsA("Frame") then
+        local text = v.Name
+        local value = string.match(text, "([^:]+):")
+        if value then
+            print("Value before colon: ", value)
+            table.insert(potions,value)
+        end
+    end
+end
+
+local vu = game:GetService("VirtualUser")
+game:GetService("Players").LocalPlayer.Idled:connect(function()
+   vu:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+   wait(3)
+   vu:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+end)
+
+
+local gameName = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
+
+local Window = Fluent:CreateWindow({
+    Title = "Alucard Private | " .. gameName,
+    SubTitle = "by Alucard",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(580, 460),
+    Acrylic = true, -- The blur may be detectable, setting this to false disables blur entirely
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.LeftControl -- Used when theres no MinimizeKeybind
+})
+
+
+local Tabs = {
+    Main = Window:AddTab({ Title = "Main", Icon = "" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+}
+
+local Options = Fluent.Options
+
+do
+
+
+    local Fish = Tabs.Main:AddToggle("FishToggle", {Title = "Auto Fish", Default = false })
+    local SwordInRock = Tabs.Main:AddToggle("SwordInRockToggle", {Title = "Auto Sword In Rock", Default = false })
+    local AutoClaimQuests = Tabs.Main:AddToggle("AutoClaimQuestsToggle", {Title = "Auto Claim Quests", Default = false })
+    local AutoPVP = Tabs.Main:AddToggle("AutoPVPToggle", {Title = "Auto PVP", Default = false })
+
+
+
+    local AutoPotions = Tabs.Main:AddDropdown("PotionDP", {
+        Title = "Select Potions To:",
+        Description = "You can select multiple potions.",
+        Values = potions,
+        Multi = true,
+        Default = {""},
+    })
+
+
+    local AutoUseSpecificPotion = Tabs.Main:AddToggle("AutoUseSpecificPotionToggle", {Title = "Auto Use Selected Potion(s)", Default = false })
+    local AutoUseAllPotions = Tabs.Main:AddToggle("AutoUseAllPotionToggle", {Title = "Auto Use All Potions", Default = false })
+
+
+    
+    Fish:OnChanged(function()
+        while Options.FishToggle.Value == true do  
+            task.wait(.1)
+                   pcall(function()
+                    if workspace.Environment.Fishing.Rod.Rill.Attachment.ProximityPrompt.ObjectText == "NOW!" then
+                        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.Environment.Fishing.Rod.Rill.CFrame
+                    local proximityPrompt = workspace.Environment.Fishing.Rod.Rill.Attachment.ProximityPrompt
+                    proximityPrompt:InputHoldBegin()
+                    proximityPrompt:InputHoldEnd()
+                    end    
+                   end)
+                   if  Options.FishToggle.Value == false then 
+                       break 
+                     end 
+                   end 
+           
+    end)
+
+
+
+    SwordInRock:OnChanged(function()
+        while Options.SwordInRock.Value == true do  
+            task.wait(.1)
+                   pcall(function()
+                    if workspace.Environment.SwordInRock.Rock.Attachment.ProximityPrompt == "NOW!" then 
+                        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(31.2233238, 2.52888727, 44.5766983, 0.984812498, 0, 0.173621148, 0, 1, 0, -0.173621148, 0, 0.984812498)
+                        local proximityPrompt = workspace.Environment.Fishing.Rod.Rill.Attachment.ProximityPrompt
+                        proximityPrompt:InputHoldBegin()
+                        proximityPrompt:InputHoldEnd()
+                    end                     
+                   end)
+                   if  Options.SwordInRock.Value == false then 
+                       break 
+                     end 
+                   end 
+           
+    end)
+
+
+    AutoPotions:OnChanged(function(Value)
+        getgenv().Potions = {}
+        for i, v in pairs(Value) do
+            table.insert(getgenv().Potions, i)  -- Insert the key (i) into the table
+        end
+        print("Potions changed:", table.concat(getgenv().Potions, ","))
+        
+    end)
+    
+    AutoUseSpecificPotion:OnChanged(function()
+        while Options.AutoUseSpecificPotionToggle.Value == true do  
+            task.wait(1)
+             pcall(function()
+    for _,actualname in pairs(getgenv().Potions ) do
+        local args = {
+            [1] = actualname,
+            [2] = 1
+        }
+        
+        game:GetService("ReplicatedStorage"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("PotionInventoryService"):WaitForChild("RF"):WaitForChild("ConsumePotion"):InvokeServer(unpack(args))
+             end
+            end)
+        end
+    end)
+
+
+    
+    AutoUseAllPotions:OnChanged(function()
+        while Options.AutoUseAllPotionToggle.Value == true do  
+            task.wait(.1)
+                   pcall(function()
+
+                    local potions  =  {}
+for i, v in pairs(game:GetService("Players").LocalPlayer.PlayerGui.ScreenGui.PotionInventory.Items:GetChildren()) do
+    if v:IsA("Frame") then
+        local text = v.Name
+        local value = string.match(text, "([^:]+):")
+        if value then
+            print("Value before colon: ", value)
+            table.insert(potions,value)
+        end
+    end
+end
+                    for _,v in pairs(potions ) do
+                        local args = {
+                            [1] = v,
+                            [2] = 1
+                        }
+                        
+                        game:GetService("ReplicatedStorage"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("PotionInventoryService"):WaitForChild("RF"):WaitForChild("ConsumePotion"):InvokeServer(unpack(args))
+                        
+                             end        
+                   end)
+                   if  Options.AutoUseAllPotionToggle.Value == false then 
+                       break 
+                     end 
+                   end 
+           
+    end)
+
+
+    AutoClaimQuests:OnChanged(function()
+        while Options.AutoClaimQuestsToggle.Value == true do  
+            task.wait(1)
+             pcall(function()
+    for i,v in pairs(game:GetService("Players").LocalPlayer.PlayerGui.ScreenGui.Quests.Content:GetChildren()) do 
+        if v:IsA('Frame') then
+            local args = {
+                [1] = v.Name
+            }
+            
+            game:GetService("ReplicatedStorage"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("QuestService"):WaitForChild("RF"):WaitForChild("Redeem"):InvokeServer(unpack(args))  
+        end
+    end 
+end)
+end
+end)
+
+AutoPVP:OnChanged(function()
+    while Options.AutoPVPToggle.Value == true do  
+        task.wait(1)
+         pcall(function()
+for i,v in pairs(game:GetService("Players").LocalPlayer.PlayerGui.ScreenGui.PVP.Attack.OpponentsList:GetChildren()) do 
+    if v:IsA('Frame') then
+        local args = {
+            [1] = v.Name
+        }
+        
+        game:GetService("ReplicatedStorage"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("PVPDungeonService"):WaitForChild("RF"):WaitForChild("FightPlayerDungeon"):InvokeServer(unpack(args))
+        
+    end
+end 
+end)
+end
+end)
+
+
+
+
+end -- end for UI
+
+SaveManager:SetLibrary(Fluent)
+InterfaceManager:SetLibrary(Fluent)
+SaveManager:IgnoreThemeSettings()
+SaveManager:SetIgnoreIndexes({})
+InterfaceManager:SetFolder("L-HUBAutoSaveFunctions")
+SaveManager:SetFolder("L-HUBAutoSaveFunctions")
+InterfaceManager:BuildInterfaceSection(Tabs.Settings)
+SaveManager:BuildConfigSection(Tabs.Settings)
+Window:SelectTab(1)
+SaveManager:LoadAutoloadConfig()
+
